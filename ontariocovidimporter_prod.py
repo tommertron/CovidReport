@@ -10,7 +10,7 @@ import sys
 from sys import platform
 import requests
 
-# test2
+# test3
 
 # Create logging function
 ## This function logs messages that are passed to it to a log file, along with a timestamp that the message was sent. 
