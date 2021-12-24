@@ -28,11 +28,8 @@ def logit (event,dtime = 'no'):
 ## This variable records whether the script was called via cron job or not.
 cron = ''
 
-
-
 # Log that the job is starting. 
 logit ("Starting script\n"+cron,'yes')
-
 
 ## Define some dates!
 reporteddate = ''
@@ -79,7 +76,7 @@ IFToken = keygetter('IFToken.txt')
 def gsheetupdate(date):
 	hookurl = 'https://maker.ifttt.com/trigger/addsheet/with/key/'+IFToken
 	payload = {
-				"value1":str(coviddataset['total doses administered'][0])+'|'+str(coviddataset['total individuals fully vaccinated'][0]),"value2":str(coviddataset['Total Cases'][0])+'|'+str(coviddataset['Number of patients hospitalized with COVID-19'][0]),"value3":str(coviddataset['Number of patients in ICU due to COVID-19'][0])+'|'+str(date)
+				"value1":str(coviddataset['total doses administered'][0])+'|'+str(coviddataset['total individuals fully vaccinated'][0]),"value2":str(coviddataset['Total Cases'][0])+'|'+str(coviddataset['Number of patients hospitalized with COVID-19'][0]),"value3":str(coviddataset['Number of patients in ICU due to COVID-19'][0])+'|'+str(date)+'|'+str(coviddataset['total individuals at least one'][0])
 	}
 	headers = {}
 	res = requests.post(hookurl, data=payload, headers=headers)
@@ -115,7 +112,7 @@ datefieldlist = {
 	}
 ### This variable stores all of the fields we want to retrieve from each Ontario dataset. The script will get and print all of today's data for each field listed here.
 fieldlist = {
-	'Vaccinedata': ['total_doses_administered', 'total_individuals_fully_vaccinated', 'total_individuals_3doses'],
+	'Vaccinedata': ['total_doses_administered', 'total_individuals_at_least_one', 'total_individuals_fully_vaccinated', 'total_individuals_3doses'],
 	'Casedata': ['Total Cases', 'Number of patients hospitalized with COVID-19','Number of patients in ICU due to COVID-19']
 	}
 ## This specifies what we want to call each dataset when we output its results. 
@@ -460,19 +457,29 @@ if checkfile ('dates.txt',formattedToday) == False:
 		ontariopop = 14755211
 		
 		## 1 Dose
-		def vaxchange (datum):
-			vaccinepercent = (int(coviddataset[datum][0]) - int(coviddataset['total individuals fully vaccinated'][0])) / ontariopop
-			vaccinerate = (int(coviddataset[datum][0]) / int(coviddataset[datum][1])) - 1
-			if vaccinerate == 0:
+# 		def vaxchange (datum):
+# 			vaccinepercent = (int(coviddataset[datum][0]) - int(coviddataset['total individuals fully vaccinated'][0])) / ontariopop
+# 			vaccinerate = (int(coviddataset[datum][0]) / int(coviddataset[datum][1])) - 1
+# 			if vaccinerate == 0:
+# 				arrow = '↕️'
+# 			elif vaccinerate < 0:
+# 				arrow = '⬇️'
+# 			else:
+# 				arrow = '⬆️'
+# 			return (str(format(vaccinepercent,".1%"))+' ('+arrow+" "+str(format(abs(vaccinerate),".1%"))+')')
+# 		adddata ('% of People With at Least One Dose: '+str(vaxchange('total doses administered')),'bullet')
+		vaccinepercent = (int(coviddataset['total individuals at least one'][0])) / ontariopop
+		vaccinerate = (int(coviddataset['total individuals at least one'][0]) / int(coviddataset['total individuals at least one'][1])) - 1
+		if vaccinerate == 0:
 				arrow = '↕️'
-			elif vaccinerate < 0:
-				arrow = '⬇️'
-			else:
-				arrow = '⬆️'
-			return (str(format(vaccinepercent,".1%"))+' ('+arrow+" "+str(format(abs(vaccinerate),".1%"))+')')
-		adddata ('% of People With at Least One Dose: '+str(vaxchange('total doses administered')),'bullet')
+		elif vaccinerate < 0:
+			arrow = '⬇️'
+		else:
+			arrow = '⬆️'
+		gaugeit(vaccinerate,'Maxxinated')
+		adddata ('% of People With at Least One Dose: '+str(format(vaccinepercent,".1%"))+' ('+arrow+' '+str(format(abs(vaccinerate),".1%"))+')','bullet','posttweet')
 		
-		## Maxxinated 
+		## Maxxinated
 		vaccinepercent = (int(coviddataset['total individuals fully vaccinated'][0])) / ontariopop
 		vaccinerate = (int(coviddataset['total individuals fully vaccinated'][0]) / int(coviddataset['total individuals fully vaccinated'][1])) - 1
 		if vaccinerate == 0:
@@ -485,7 +492,6 @@ if checkfile ('dates.txt',formattedToday) == False:
 		adddata ('% of People Maxxinated: '+str(format(vaccinepercent,".1%"))+' ('+arrow+' '+str(format(abs(vaccinerate),".1%"))+')','bullet','posttweet')
 		
 		## 3 Shotters 
-
 		vaccinepercent = (int(coviddataset['total individuals 3doses'][0])) / ontariopop
 		vaccinerate = (int(coviddataset['total individuals 3doses'][0]) / int(coviddataset['total individuals 3doses'][1])) - 1
 		gaugeit(vaccinerate,'3 Shotters')
