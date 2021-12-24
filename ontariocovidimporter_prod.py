@@ -530,7 +530,7 @@ if checkfile ('dates.txt',formattedToday) == False:
 		adddata ('(Emoji Factors: '+factors+'.)','p')
 		esubject = esubject + ': ' + howrthings[str(gauge)]
 		emoji = howrthings[str(gauge)]
-		emailbody = emailbody + '<h2>📈Charts</h2><h3>Cases, Hospitalizations, Vaccines</h3><img src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQgPFb9qYvFkx2QxDN5ympVrqdMvPAsmVsDdhqwMD2ZTTVI9dNNRO06Kxal2j3ruBLDUj5gg_oW2lw3/pubchart?oid=121353037&format=image" alt="Historical Chart"><h3>Vaccine 7-Day Average Dose Rate</h3><img src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQgPFb9qYvFkx2QxDN5ympVrqdMvPAsmVsDdhqwMD2ZTTVI9dNNRO06Kxal2j3ruBLDUj5gg_oW2lw3/pubchart?oid=1049777004&amp;format=image" alt="Vaccine 7 day average history"></p>'
+		emailbody = emailbody + '<h2>📈Charts</h2><h3><a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQgPFb9qYvFkx2QxDN5ympVrqdMvPAsmVsDdhqwMD2ZTTVI9dNNRO06Kxal2j3ruBLDUj5gg_oW2lw3/pubchart?oid=121353037&format=interactive">Cases, Hospitalizations, Vaccines</a></h3><img src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQgPFb9qYvFkx2QxDN5ympVrqdMvPAsmVsDdhqwMD2ZTTVI9dNNRO06Kxal2j3ruBLDUj5gg_oW2lw3/pubchart?oid=121353037&format=image" alt="Historical Chart"><h3>Vaccine 7-Day Average Dose Rate</h3><img src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQgPFb9qYvFkx2QxDN5ympVrqdMvPAsmVsDdhqwMD2ZTTVI9dNNRO06Kxal2j3ruBLDUj5gg_oW2lw3/pubchart?oid=1049777004&amp;format=image" alt="Vaccine 7 day average history"></p>'
 	
 		# Send results to the gsheet and send email unless already done
 
