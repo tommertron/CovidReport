@@ -1,5 +1,7 @@
 # Tom's Ontario Covid Report
 
+#I'm going to the pi!
+
 ## Import Modules 
 from datetime import date
 import json
