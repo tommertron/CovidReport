@@ -1,7 +1,5 @@
 # Tom's Ontario Covid Report
 
-#I'm going to the pi!
-
 ## Import Modules 
 from datetime import date
 import json
@@ -78,7 +76,7 @@ IFToken = keygetter('IFToken.txt')
 def gsheetupdate(date):
 	hookurl = 'https://maker.ifttt.com/trigger/addsheet/with/key/'+IFToken
 	payload = {
-				"value1":str(coviddataset['total doses administered'][0])+'|'+str(coviddataset['total individuals fully vaccinated'][0]),"value2":str(coviddataset['Total Cases'][0])+'|'+str(coviddataset['Number of patients hospitalized with COVID-19'][0]),"value3":str(coviddataset['Number of patients in ICU due to COVID-19'][0])+'|'+str(date)+'|'+str(coviddataset['total individuals at least one'][0])
+				"value1":str(coviddataset['total_doses_administered'][0])+'|'+str(coviddataset['total_individuals_fully_vaccinated'][0]),"value2":str(coviddataset['Total Cases'][0])+'|'+str(coviddataset['Number of patients hospitalized with COVID-19'][0]),"value3":str(coviddataset['Number of patients in ICU due to COVID-19'][0])+'|'+str(date)+'|'+str(coviddataset['total_individuals_at_least_one'][0])
 	}
 	headers = {}
 	res = requests.post(hookurl, data=payload, headers=headers)
@@ -114,8 +112,8 @@ datefieldlist = {
 	}
 ### This variable stores all of the fields we want to retrieve from each Ontario dataset. The script will get and print all of today's data for each field listed here.
 fieldlist = {
-	'Vaccinedata': ['total_doses_administered', 'total_individuals_at_least_one', 'total_individuals_fully_vaccinated', 'total_individuals_3doses'],
-	'Casedata': ['Total Cases', 'Number of patients hospitalized with COVID-19','Number of patients in ICU due to COVID-19']
+	'Vaccinedata': ['total_doses_administered', 'total_individuals_at_least_one', 'total_individuals_fully_vaccinated', 'total_individuals_3doses','report_date'],
+	'Casedata': ['Total Cases', 'Number of patients hospitalized with COVID-19','Number of patients in ICU due to COVID-19','Reported Date']
 	}
 ## This specifies what we want to call each dataset when we output its results. 
 friendlynamelist = {
@@ -128,7 +126,6 @@ coviddataset = {}
 ## This little loop takes all of the fields we listed in 'field list' and adds them to the coviddataset dictionary variable as keys. We'l use this later to parse through and add values to.
 for x in fieldlist:
 	for i in fieldlist[x]:
-		i = i.replace('_',' ')
 		coviddataset[i] = []
 
 ## This variable will store the number of results we get to check if they are complete. It starts at 0.
@@ -183,7 +180,6 @@ def getcoviddata(dataset,getdays,fetchdate):
 			for i in nicedata['result']['records'][quay]:
 				recname = i
 				recnum = nicedata['result']['records'][quay][i]
-				recname = recname.replace('_', ' ')
 				if type(recnum) == str:
 					recnum = recnum.replace(',', '')
 				# Add result to global dataset
@@ -428,6 +424,7 @@ if checkfile ('dates.txt',formattedToday) == False:
 		
 		# ----------- Hospitalization Data -----------   
 		adddata('🏥 Hospitalizations + ICU','heading')
+# These next parts report on Hospitalizations + ICU numbers discretely. Keeping this in for later in case I want to revert back.
 # 		adddata ('Number of patients in hospital: '+
 # 			str(NoneCheck(coviddataset['Number of patients hospitalized with COVID-19'][0]))+
 # 			str(ratechange('Number of patients hospitalized with COVID-19')),
@@ -459,19 +456,8 @@ if checkfile ('dates.txt',formattedToday) == False:
 		ontariopop = 14755211
 		
 		## 1 Dose
-# 		def vaxchange (datum):
-# 			vaccinepercent = (int(coviddataset[datum][0]) - int(coviddataset['total individuals fully vaccinated'][0])) / ontariopop
-# 			vaccinerate = (int(coviddataset[datum][0]) / int(coviddataset[datum][1])) - 1
-# 			if vaccinerate == 0:
-# 				arrow = '↕️'
-# 			elif vaccinerate < 0:
-# 				arrow = '⬇️'
-# 			else:
-# 				arrow = '⬆️'
-# 			return (str(format(vaccinepercent,".1%"))+' ('+arrow+" "+str(format(abs(vaccinerate),".1%"))+')')
-# 		adddata ('% of People With at Least One Dose: '+str(vaxchange('total doses administered')),'bullet')
-		vaccinepercent = (int(coviddataset['total individuals at least one'][0])) / ontariopop
-		vaccinerate = (int(coviddataset['total individuals at least one'][0]) / int(coviddataset['total individuals at least one'][1])) - 1
+		vaccinepercent = (int(coviddataset['total_individuals_at_least_one'][0])) / ontariopop
+		vaccinerate = (int(coviddataset['total_individuals_at_least_one'][0]) / int(coviddataset['total_individuals_at_least_one'][1])) - 1
 		if vaccinerate == 0:
 				arrow = '↕️'
 		elif vaccinerate < 0:
@@ -482,8 +468,8 @@ if checkfile ('dates.txt',formattedToday) == False:
 		adddata ('% of People With at Least One Dose: '+str(format(vaccinepercent,".1%"))+' ('+arrow+' '+str(format(abs(vaccinerate),".1%"))+')','bullet','posttweet')
 		
 		## Maxxinated
-		vaccinepercent = (int(coviddataset['total individuals fully vaccinated'][0])) / ontariopop
-		vaccinerate = (int(coviddataset['total individuals fully vaccinated'][0]) / int(coviddataset['total individuals fully vaccinated'][1])) - 1
+		vaccinepercent = (int(coviddataset['total_individuals_fully_vaccinated'][0])) / ontariopop
+		vaccinerate = (int(coviddataset['total_individuals_fully_vaccinated'][0]) / int(coviddataset['total_individuals_fully_vaccinated'][1])) - 1
 		if vaccinerate == 0:
 				arrow = '↕️'
 		elif vaccinerate < 0:
@@ -494,8 +480,8 @@ if checkfile ('dates.txt',formattedToday) == False:
 		adddata ('% of People Maxxinated: '+str(format(vaccinepercent,".1%"))+' ('+arrow+' '+str(format(abs(vaccinerate),".1%"))+')','bullet','posttweet')
 		
 		## 3 Shotters 
-		vaccinepercent = (int(coviddataset['total individuals 3doses'][0])) / ontariopop
-		vaccinerate = (int(coviddataset['total individuals 3doses'][0]) / int(coviddataset['total individuals 3doses'][1])) - 1
+		vaccinepercent = (int(coviddataset['total_individuals_3doses'][0])) / ontariopop
+		vaccinerate = (int(coviddataset['total_individuals_3doses'][0]) / int(coviddataset['total_individuals_3doses'][1])) - 1
 		gaugeit(vaccinerate,'3 Shotters')
 		if vaccinerate == 0:
 				arrow = '↕️'
@@ -506,14 +492,14 @@ if checkfile ('dates.txt',formattedToday) == False:
 		adddata ('% of People with 3 Shots: '+str(format(vaccinepercent,".1%"))+' ('+arrow+' '+str(format(abs(vaccinerate),".1%"))+')','bullet','posttweet')
 		
 		## Doses
-		sevdayratechange = sevavcalc('today',coviddataset['total doses administered']) / sevavcalc('yesterday',coviddataset['total doses administered']) -1
+		sevdayratechange = sevavcalc('today',coviddataset['total_doses_administered']) / sevavcalc('yesterday',coviddataset['total_doses_administered']) -1
 		if sevdayratechange > 0:
 			arrow = '⬆️'
 		else:
 			arrow = '⬇️'
-		sevdaydoseav = f"{sevavcalc('today',coviddataset['total doses administered']):,.0f}"
+		sevdaydoseav = f"{sevavcalc('today',coviddataset['total_doses_administered']):,.0f}"
 		adddata ('7 Day Average Doses Administered: '+ sevdaydoseav +' ('+arrow+' '+str(format(abs(sevdayratechange),".1%"))+')','bullet')
-		gaugeit(sevaveragegauger('total doses administered'),'7 Day Dose Average')
+		gaugeit(sevaveragegauger('total_doses_administered'),'7 Day Dose Average')
 
 		# Finalize the emoji (gauge)
 		adddata ('Overall, how are things going right now?','heading')
@@ -577,19 +563,6 @@ if checkfile ('dates.txt',formattedToday) == False:
 	else:
 		print ('Incomplete data for today!\n')
 		logit ("Incomplete data for today!")
-
-
-# 	coviddataset = {
-# 	  'Total Cases': [],
-# 	  'Number of patients hospitalized with COVID-19': [],
-# 	  'Number of patients in ICU due to COVID-19': [],
-# 	  'total doses administered': [],
-# 	  'total individuals fully vaccinated': [],
-# 	}
-# 	getcoviddata ('Vaccinedata',daysget,getdate)
-# 	getcoviddata ('Casedata',daysget,getdate)
-# 	for i in coviddataset:
-# 		print ('- ',i,":",coviddataset[i])
 
 # This prints the reported date if yesterday was asked for.
 if reporteddate != '':
