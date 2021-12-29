@@ -9,6 +9,12 @@ from datetime import datetime, timedelta
 import sys
 from sys import platform
 import requests
+import os
+
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
+
 
 # Create logging function
 ## This function logs messages that are passed to it to a log file, along with a timestamp that the message was sent. 
@@ -154,7 +160,6 @@ def getcoviddata(dataset,getdays,fetchdate):
 	# Set global variables
 	global resultstotal
 	global coviddataset
-	# clipboardresult = clipboardresult
 	fields = fieldlist[dataset]
 	## Create field list query section
 	for x in fields[:-1]:
