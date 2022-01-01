@@ -81,7 +81,7 @@ def blankchecker(date,dataset):
 			checker = 1 + int(localData.loc[date,i])
 		except ValueError:
 			fieldquery.append(i)
-	if len(fieldquery) > 0:
+	if fieldquery:
 		return fieldquery
 
 # Function to build a query and get data
@@ -91,9 +91,7 @@ def querier(dataset,qfields,qdate):
 	fieldQuery = 'fields='
 	numfields = len(qfields)
 	for x in qfields:
-		comma = ','
-		if numfields == 1:
-			comma = ''
+		comma = '' if numfields == 1 else ','
 		fieldQuery = fieldQuery+'\"'+x+'\"' + comma
 		numfields -= 1
 	reqdate = 'filters={\"' + datasources[dataset]['datename'] + '\":[\"' + qdate + '\"]}'
