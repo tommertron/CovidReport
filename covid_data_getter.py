@@ -137,25 +137,21 @@ if __name__ == "__main__":
             print: "new line char found"
 
     # Check if there are any missing rows and create if not
+	BACKFILLCOUNT = 10
     checkdate = today
-    datesbeckcheck = datesback
-    while datesbeckcheck > 0:
+   	for _ in range(BACKFILLCOUNT):
         OpenCSV()
         if dateCheck(str(checkdate)) == False:
             addRow({"date": checkdate})
         checkdate = checkdate - timedelta(days=1)
-        datesbeckcheck -= 1
 
     # Populate missing values
-
-    datesbackvalues = datesback
     checkdate = today
-    while datesbackvalues > 0:
-        for i in datasources:
-            OpenCSV()
-            blankfiller(str(checkdate), i)
-        checkdate = checkdate - timedelta(days=1)
-        datesbackvalues -= 1
+   	for _ in range(BACKFILLCOUNT):
+		for i in datasources:
+			OpenCSV()
+			blankfiller (str(checkdate),i)
+		checkdate = checkdate - timedelta(days=1)
 
     OpenCSV()
 
