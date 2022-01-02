@@ -123,28 +123,23 @@ if __name__ == '__main__':
     
     # Check if there are any missing rows and create if not
 	today = date.today()
-	ftoday = str(today)
-	datesback = 10
     
     # Populate any missing dates
+	BACKFILLCOUNT = 10
 	checkdate = today
-	datesbeckcheck = datesback
-	while datesbeckcheck >0:
+	for datesback in range(BACKFILLCOUNT):
 		OpenCSV()
 		if dateCheck(str(checkdate)) == 'Date not found':
 			addRow({'date': checkdate})
 		checkdate = checkdate - timedelta(days=1)
-		datesbeckcheck -= 1
-    
+
     # Populate missing values 
-	datesbackvalues = datesback
 	checkdate = today
-	while datesbackvalues > 0:
+	for _ in range(BACKFILLCOUNT):
 		for i in datasources:
 			OpenCSV()
 			blankfiller (str(checkdate),i)
 		checkdate = checkdate - timedelta(days=1)
-		datesbackvalues -= 1
     	
 	OpenCSV()
     
