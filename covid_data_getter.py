@@ -110,38 +110,46 @@ def blankfiller(date,dataset):
 				addValue(date, i, reqdata['result']['records'][0][i])
 				OpenCSV()
 
-# Open the CSV
-OpenCSV()
-
-# Check if there are any missing rows and create if not
-today = date.today()
-ftoday = str(today)
-datesback = 10
-
-# Populate any missing dates
-checkdate = today
-datesbeckcheck = datesback
-while datesbeckcheck >0:
-	OpenCSV()
-	if dateCheck(str(checkdate)) == 'Date not found':
-		addRow({'date': checkdate})
-	checkdate = checkdate - timedelta(days=1)
-	datesbeckcheck -= 1
-
-# Populate missing values 
-datesbackvalues = datesback
-checkdate = today
-while datesbackvalues > 0:
-	for i in datasources:
-		OpenCSV()
-		blankfiller (str(checkdate),i)
-	checkdate = checkdate - timedelta(days=1)
-	datesbackvalues -= 1
-	
-OpenCSV()
-
-localData.sort_values(['date'], 
-                    axis=0,
-                    ascending=[False], 
-                    inplace=True)
-localData.to_csv(file)
+if __name__ == '__main__':
+    import argparse
+    import os
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--csvdir", help="Directory of csv file")
+    args = parser.parse_args()
+    if(args.csvdir):
+        file = os.path.join(args.csvdir, file)
+    # Open the CSV
+    OpenCSV()
+    
+    # Check if there are any missing rows and create if not
+    today = date.today()
+    ftoday = str(today)
+    datesback = 10
+    
+    # Populate any missing dates
+    checkdate = today
+    datesbeckcheck = datesback
+    while datesbeckcheck >0:
+    	OpenCSV()
+    	if dateCheck(str(checkdate)) == 'Date not found':
+    		addRow({'date': checkdate})
+    	checkdate = checkdate - timedelta(days=1)
+    	datesbeckcheck -= 1
+    
+    # Populate missing values 
+    datesbackvalues = datesback
+    checkdate = today
+    while datesbackvalues > 0:
+    	for i in datasources:
+    		OpenCSV()
+    		blankfiller (str(checkdate),i)
+    	checkdate = checkdate - timedelta(days=1)
+    	datesbackvalues -= 1
+    	
+    OpenCSV()
+    
+    localData.sort_values(['date'], 
+                        axis=0,
+                        ascending=[False], 
+                        inplace=True)
+    localData.to_csv(file)
