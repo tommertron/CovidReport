@@ -1,2 +1,10 @@
-- name: Python Style Checker
-  uses: andymckay/pycodestyle-action@0.1.3
+name: Lint: pycodestyle
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: andymckay/pycodestyle-action@0.1.3
