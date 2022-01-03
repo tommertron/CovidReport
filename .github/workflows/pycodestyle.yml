@@ -1,4 +1,4 @@
-name: Lint: pycodestyle
+name: pycodestyle
 
 on: [push, pull_request]
 
