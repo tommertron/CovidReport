@@ -128,7 +128,6 @@ if __name__ == '__main__':
 		if '\n' in lines:
 			print: 'new line char found'
 		
-	
 	# Check if there are any missing rows and create if not
 	checkdate = today
 	datesbeckcheck = datesback
@@ -140,6 +139,7 @@ if __name__ == '__main__':
 		datesbeckcheck -= 1
 	
 	# Populate missing values 
+
 	datesbackvalues = datesback
 	checkdate = today
 	while datesbackvalues > 0:
@@ -155,4 +155,5 @@ if __name__ == '__main__':
 						axis=0,
 						ascending=[False], 
 						inplace=True)
+
 	localData.to_csv(file)
