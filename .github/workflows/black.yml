@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 name: black
-=======
-name: Lint: black
->>>>>>> 734bd68 (Update the yaml files a little)
 
 on: [push, pull_request]
 
