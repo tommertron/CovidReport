@@ -1,2 +1,4 @@
+black
 pandas
+pycodestyle
 pytest
