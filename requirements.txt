@@ -1,4 +1,5 @@
 black
+coverage
 pandas
 pycodestyle
 pytest
