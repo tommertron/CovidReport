@@ -1,4 +1,6 @@
 date,total_doses_administered,New doses,New dose 7 day average,total_individuals_at_least_one,% of pop one dose,total_individuals_fully_vaccinated,% of pop two doses,total_individuals_3doses,% of pop three doses,Total Cases,New Cases,New Cases 7 Day Average,Number of patients hospitalized with COVID-19,Number of patients in ICU due to COVID-19,Hospitial + ICU,Hospital + ICU average,Email sent?
+2022-01-03,,,,,,,,,,,,,,,,,
+2022-01-02,,,,,,,,,,,,,,,,,
 2022-01-01,,,,,,,,,,,,,,,,,
 2021-12-31,27208675.0,,,12208736.0,,11410550.0,,3571791.0,,756361.0,,,1144.0,205.0,,,
 2021-12-30,27012866.0,,,12197443.0,,11404979.0,,3392882.0,,739648.0,,,965.0,200.0,,,

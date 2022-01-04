@@ -14,6 +14,12 @@ from datetime import datetime, timedelta
 # Sets the name of the CSV file we'll be using to store data 
 file = 'ontario_covid_data.csv'
 
+# Gets today's date and formats it 
+today = date.today()
+ftoday = str(today)
+# Determines how many days back to check for data in the CSV file
+datesback = 10
+
 # Creating the datasourceinfo variable which stores information about how to query different datasets 
 datasources = {
 'CaseData': {
@@ -69,9 +75,9 @@ def addValue(row,column,value):
 def dateCheck(day):
 	try:
 		localData.loc[day]
-		return 'Date found'
+		return True
 	except KeyError:
-		return 'Date not found'
+		return False
 
 # Function to check blank fields for a given date 
 def blankchecker(date,dataset):
@@ -88,12 +94,7 @@ def blankchecker(date,dataset):
 def querier(dataset,qfields,qdate):
 	urlstart = 'https://data.ontario.ca/api/3/action/datastore_search?'
 	resourceid = 'resource_id=' + datasources[dataset]['id']
-	fieldQuery = 'fields='
-	numfields = len(qfields)
-	for x in qfields:
-		comma = '' if numfields == 1 else ','
-		fieldQuery = fieldQuery+'\"'+x+'\"' + comma
-		numfields -= 1
+	fieldQuery = "fields=%s" % (",".join(qfields))
 	reqdate = 'filters={\"' + datasources[dataset]['datename'] + '\":[\"' + qdate + '\"]}'
 	queryurl = urlstart + resourceid + '&' + fieldQuery + '&' + reqdate
 	queryurl = queryurl.replace(' ', '%20')
@@ -120,23 +121,25 @@ if __name__ == '__main__':
 		file = os.path.join(args.csvdir, file)
 	# Open the CSV
 	OpenCSV()
-    
-    # Check if there are any missing rows and create if not
-	today = date.today()
-	ftoday = str(today)
-	datesback = 10
-    
-    # Populate any missing dates
+	
+	# Add a blank line to end of CSV if one doesn't exist. (This is needed to add any new rows to the table.)
+	with open(file, 'r') as f:
+		lines = (f.readlines())
+		if '\n' in lines:
+			print: 'new line char found'
+		
+	# Check if there are any missing rows and create if not
 	checkdate = today
 	datesbeckcheck = datesback
-	while datesbeckcheck >0:
+	while datesbeckcheck > 0:
 		OpenCSV()
-		if dateCheck(str(checkdate)) == 'Date not found':
+		if dateCheck(str(checkdate)) == False:
 			addRow({'date': checkdate})
 		checkdate = checkdate - timedelta(days=1)
 		datesbeckcheck -= 1
-    
-    # Populate missing values 
+	
+	# Populate missing values 
+
 	datesbackvalues = datesback
 	checkdate = today
 	while datesbackvalues > 0:
@@ -145,11 +148,12 @@ if __name__ == '__main__':
 			blankfiller (str(checkdate),i)
 		checkdate = checkdate - timedelta(days=1)
 		datesbackvalues -= 1
-    	
+		
 	OpenCSV()
-    
+	
 	localData.sort_values(['date'], 
-                        axis=0,
-                        ascending=[False], 
-                        inplace=True)
+						axis=0,
+						ascending=[False], 
+						inplace=True)
+
 	localData.to_csv(file)
