@@ -134,12 +134,11 @@ if __name__ == "__main__":
     with open(file, "r") as f:
         lines = f.readlines()
         if "\n" in lines:
-            print: "new line char found"
+            print("new line char found")
 
     # Check if there are any missing rows and create if not
-	BACKFILLCOUNT = 10
     checkdate = today
-   	for _ in range(BACKFILLCOUNT):
+    for _ in range(10):
         OpenCSV()
         if dateCheck(str(checkdate)) == False:
             addRow({"date": checkdate})
@@ -147,11 +146,11 @@ if __name__ == "__main__":
 
     # Populate missing values
     checkdate = today
-   	for _ in range(BACKFILLCOUNT):
-		for i in datasources:
-			OpenCSV()
-			blankfiller (str(checkdate),i)
-		checkdate = checkdate - timedelta(days=1)
+    for _ in range(10):
+        for i in datasources:
+            OpenCSV()
+            blankfiller(str(checkdate), i)
+        checkdate = checkdate - timedelta(days=1)
 
     OpenCSV()
 
