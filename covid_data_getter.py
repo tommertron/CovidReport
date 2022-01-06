@@ -14,10 +14,11 @@ from datetime import datetime, timedelta
 # Sets the name of the CSV file we'll be using to store data
 file = "ontario_covid_data.csv"
 
-# Gets today's date and formats it
+# Gets today's date 
 today = date.today()
+
 # Determines how many days back to check for data in the CSV file
-datesback = 10
+DATESBACK = 10
 
 # Creating the datasourceinfo variable which stores information about how to query different datasets
 datasources = {
@@ -41,6 +42,7 @@ datasources = {
         ],
     },
 }
+
 
 ###---Functions---
 # get list of fields from CSV file
@@ -109,7 +111,7 @@ def querier(dataset, qfields, qdate):
 # Stub of a function to get blank data. Need to run this in a loop for every blank cell in each dataset for each day...
 def blankfiller(date, dataset):
     qfields = blankchecker(date, dataset)
-    if qfields != None:
+    if qfields is not None:
         reqdata = querier(dataset, qfields, date)
         if reqdata["result"]["total"] > 0:
             for i in qfields:
@@ -137,15 +139,15 @@ if __name__ == "__main__":
 
     # Check if there are any missing rows and create if not
     checkdate = today
-    for _ in range(10):
+    for _ in range(DATESBACK):
         OpenCSV()
-        if dateCheck(str(checkdate)) == False:
+        if dateCheck(str(checkdate)) is False:
             addRow({"date": checkdate})
         checkdate = checkdate - timedelta(days=1)
 
     # Populate missing values
     checkdate = today
-    for _ in range(10):
+    for _ in range(DATESBACK):
         for i in datasources:
             OpenCSV()
             blankfiller(str(checkdate), i)
