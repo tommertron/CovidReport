@@ -16,7 +16,6 @@ file = "ontario_covid_data.csv"
 
 # Gets today's date and formats it
 today = date.today()
-ftoday = str(today)
 # Determines how many days back to check for data in the CSV file
 datesback = 10
 
