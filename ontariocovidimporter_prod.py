@@ -50,6 +50,7 @@ reportingdate = getdate.strftime(
     "%B %d, %Y"
 )  # This is used to display the date the report was run
 
+
 # This is a function to check a given file for a given term to see if it's there.
 def checkfile(file_name, string_to_search):
     with open(file_name, "r") as read_obj:
@@ -73,6 +74,7 @@ if len(sys.argv) > 1:
             cron = "(CRON)"
         argslot += 1
 
+
 # Web Tokens
 ## This function gets a token from a given web service for authentication. This allows the tokens to be stored in a file separate from the script for security purposes.
 def keygetter(file):
@@ -84,6 +86,7 @@ def keygetter(file):
 BDToken = keygetter("BDToken.txt")
 ## This is the token for If This then That, which updates the Google sheet.
 IFToken = keygetter("IFToken.txt")
+
 
 # This function updates the Google Sheet with a given set of data (via IFTTT)
 def gsheetupdate(date):
@@ -161,6 +164,7 @@ for x in fieldlist:
 resultstotal = 0
 
 # Get Data Section
+
 
 ## This is the big complicated function that we will call to get the different datasets later. We pass in the dataset, how many dates we are getting, and the reporting date (today or another day).
 def getcoviddata(dataset, getdays, fetchdate):
@@ -285,6 +289,7 @@ gaugethings = {
     },
 }
 
+
 # This function adjusts the gauge based on the factor and change fed into it
 def gaugeit(change, factor):
     try:
@@ -329,7 +334,7 @@ daysget = 9  # sets how many days of data to get (starting from today)
 
 # Check for and update the gsheet for yesterday's data if not there
 if platform == "linux":
-    if checkfile("dates.txt", fyesterday) == False:
+    if checkfile("dates.txt", fyesterday) is False:
         getcoviddata("Vaccinedata", daysget, yesterday)
         getcoviddata("Casedata", daysget, yesterday)
         if resultstotal == daysget * 2:
@@ -341,7 +346,7 @@ if platform == "linux":
 # Run the function to get coviddata for vaccines and cases.
 
 ## First we check the dates file to see if the script was already run and email sent so we don't send multiple emails.
-if checkfile("dates.txt", formattedToday) == False:
+if checkfile("dates.txt", formattedToday) is False:
     getcoviddata("Vaccinedata", daysget, getdate)
     getcoviddata("Casedata", daysget, getdate)
 else:
@@ -499,7 +504,7 @@ def totalaveragesadd(datum, display):
 
 
 def NoneCheck(datum):
-    if datum == None:
+    if datum is None:
         return "N\A"
     else:
         return datum
@@ -523,7 +528,7 @@ def ratechange(datum):
 
 
 # This part of the script takes the data, does some calculations, and returns the results.
-if checkfile("dates.txt", formattedToday) == False:
+if checkfile("dates.txt", formattedToday) is False:
     if resultstotal == daysget * 2:
         # ----------- Format data, print it, log it to gsheet and send email -----------
         ##----------- Case Data -----------
@@ -730,7 +735,7 @@ if checkfile("dates.txt", formattedToday) == False:
         # Send results to the gsheet and send email unless already done
 
         if platform == "linux":
-            if checkfile("dates.txt", formattedToday) == False:
+            if checkfile("dates.txt", formattedToday) is False:
                 # Update gsheet
                 gsheetupdate(getdate)
                 logit("Today's gsheet updated")
