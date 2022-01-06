@@ -719,7 +719,7 @@ if checkfile("dates.txt", formattedToday) is False:
         else:
             for i in gaugefactor:
                 factors += i
-            factors = factors[0:len(factors) - 2]
+            factors = factors[0 : len(factors) - 2]
 
         adddata(howrthings[str(gauge)], "heading")
         if factors == "":
