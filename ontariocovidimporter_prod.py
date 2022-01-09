@@ -15,7 +15,6 @@ abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
-
 # Create logging function
 ## This function logs messages that are passed to it to a log file, along with a timestamp that the message was sent.
 def logit(event, dtime="no"):
@@ -226,105 +225,6 @@ def getcoviddata(dataset, getdays, fetchdate):
                 coviddataset[recname].append(recnum)
             quay = quay - 1
 
-
-# Sets the parameters to determine the emoji to use based on how many arrows are pointing up.
-howrthings = {"0": "🥳", "1": "😎", "2": "🙂", "3": "😐", "4": "😕", "5": "😨", "6": "😱"}
-gauge = 3
-logit("Starting gauge at " + str(gauge))
-gaugefactor = []
-
-# This variable keeps track of the factors and thresholds impacting the gauge
-gaugethings = {
-    "New Cases": {"threshold": 0.1, "name": "New Cases", "good": "down"},
-    "7 Day New Case Average": {
-        "threshold": 0.02,
-        "name": "7 Day New Case Count",
-        "good": "down",
-    },
-    "Number of patients hospitalized with COVID-19": {
-        "threshold": 0.1,
-        "name": "Hospitalization Change",
-        "good": "down",
-    },
-    "Number of patients in ICU due to COVID-19": {
-        "threshold": 0.1,
-        "name": "ICU Change",
-        "good": "down",
-    },
-    "7 Day Hospital Change Average": {
-        "threshold": 0.05,
-        "name": "7 Day Hospital Change Average",
-        "good": "down",
-    },
-    "7 Day ICU Change Average": {
-        "threshold": 0.05,
-        "name": "7 Day ICU Change Average",
-        "good": "down",
-    },
-    "Maxxinated": {"threshold": 0.01, "name": "Percent Maxxinated", "good": "up"},
-    "3 Shotters": {"threshold": 0.01, "name": "Percent 3 Shotters", "good": "up"},
-    "7 Day Dose Average": {
-        "threshold": 0.02,
-        "name": "7 Day Dose Average",
-        "good": "up",
-    },
-    "7 Day Hopsital Average": {
-        "threshold": 0.05,
-        "name": "7 Day Hopsital Average",
-        "good": "down",
-    },
-    "7 Day ICU Average": {
-        "threshold": 0.05,
-        "name": "7 Day ICU Average",
-        "good": "down",
-    },
-    "People in Hospital + ICU": {
-        "threshold": 0.05,
-        "name": "7 Day ICU Average",
-        "good": "down",
-    },
-}
-
-# This function adjusts the gauge based on the factor and change fed into it
-def gaugeit(change, factor):
-    try:
-        logit("Gauge checking " + factor + " with a rate of " + str(round(change, 2)))
-        threshold = gaugethings[factor]["threshold"]
-        gaugeup = gaugethings[factor]["name"] + " " + "up"
-        direction = "down"
-        if gaugethings[factor]["good"] == "up":
-            change *= -1
-            logit("Up is good so " + factor + " is now " + str(round(change, 2)))
-        gaugedown = gaugethings[factor]["name"] + " " + gaugethings[factor]["good"]
-        global gauge
-        if change < -threshold:
-            if gaugethings[factor]["good"] == "up":
-                direction = "up"
-            else:
-                direction = "down"
-            logit(factor + " matched below threshold")
-            gauge -= 1
-            logit(
-                "Gauge is now " + str(gauge) + " - " + factor + " " + direction + ".\n"
-            )
-            gaugefactor.append(factor + " " + direction + ", ")
-        elif change > threshold:
-            logit(factor + " matched above threshold")
-            if gaugethings[factor]["good"] == "up":
-                direction = "down"
-            else:
-                direction = "up"
-            gauge += 1
-            logit(
-                "Gauge is now " + str(gauge) + " - " + factor + " " + direction + ".\n"
-            )
-            gaugefactor.append(factor + " " + direction + ", ")
-        else:
-            logit(factor + " did not affect gauge.\n")
-    except TypeError:
-        logit("Null value for ", change)
-
-
 daysget = 9  # sets how many days of data to get (starting from today)
 
 # Check for and update the gsheet for yesterday's data if not there
@@ -469,9 +369,10 @@ def averagechange_and_add(datum, display):
         arrow = "⬆️"
     else:
         arrow = "⬇️"
+    number = sevavcalc("today", coviddataset[datum])
     adddata(
         display
-        + str(round(sevavcalc("today", coviddataset[datum])))
+        + f'{number:,.0f}'
         + " ("
         + arrow
         + " "
@@ -507,7 +408,6 @@ def NoneCheck(datum):
 
 def ratechange(datum):
     try:
-        global gauge
         change = round(coviddataset[datum][0] - coviddataset[datum][1])
         ratechange = (coviddataset[datum][0] / coviddataset[datum][1]) - 1
         if ratechange <= 0:
@@ -516,7 +416,6 @@ def ratechange(datum):
         else:
             arrow = "⬆️"
             color = 'red">'
-        gaugeit(ratechange, datum)
         return "(" + arrow + " " + str(format(abs(ratechange), ".1%")) + ")"
     except TypeError:
         return "N/A"
@@ -526,70 +425,23 @@ def ratechange(datum):
 if checkfile("dates.txt", formattedToday) == False:
     if resultstotal == daysget * 2:
         # ----------- Format data, print it, log it to gsheet and send email -----------
-        ##----------- Case Data -----------
-        adddata("🦠 Case Data", "heading")
-        newcasestoday = coviddataset["Total Cases"][0] - coviddataset["Total Cases"][1]
-        newcasesyesterday = (
-            coviddataset["Total Cases"][1] - coviddataset["Total Cases"][2]
-        )
-        newcaseratechange = (newcasestoday / newcasesyesterday) - 1
-        if newcaseratechange == 0:
-            arrow = "↕️"
-        elif newcaseratechange < 0:
-            arrow = "⬇️"
-        else:
-            arrow = "⬆️"
-        gaugeit(newcaseratechange, "New Cases")
-        adddata(
-            "New Cases: "
-            + str(round(newcasestoday))
-            + " ("
-            + arrow
-            + " "
-            + str(format(abs(newcaseratechange), ".1%"))
-            + ")",
-            "bullet",
-            "posttweet",
-        )
-        ### Calculate and display 7 day average
-        averagechange_and_add("Total Cases", "New Case 7 Day Average: ")
-        gaugeit(sevaveragegauger("Total Cases"), "7 Day New Case Average")
+
 
         # ----------- Hospitalization Data -----------
         adddata("🏥 Hospitalizations + ICU", "heading")
-        # These next parts report on Hospitalizations + ICU numbers discretely. Keeping this in for later in case I want to revert back.
-        # 		adddata ('Number of patients in hospital: '+
-        # 			str(NoneCheck(coviddataset['Number of patients hospitalized with COVID-19'][0]))+
-        # 			str(ratechange('Number of patients hospitalized with COVID-19')),
-        # 			'bullet',
-        # 			'posttweet')
-        # 		totalaveragesadd ('Number of patients hospitalized with COVID-19','7 Day Number in Hospital Average: ')
-        # 		gaugeit(total_sevavcalc_change('Number of patients hospitalized with COVID-19'),'7 Day Hopsital Average')
-
-        # ----------- ICU Data -----------
-        # 		adddata ('Number of patients in ICU: '+
-        # 			str(NoneCheck(coviddataset['Number of patients in ICU due to COVID-19'][0]))+
-        # 			str(ratechange('Number of patients in ICU due to COVID-19')),
-        # 			'bullet',
-        # 			'posttweet')
-        # 		totalaveragesadd ('Number of patients in ICU due to COVID-19','7 Day Number in ICU Average: ')
-        # 		gaugeit(total_sevavcalc_change('Number of patients in ICU due to COVID-19'),'7 Day ICU Average')
-
-        # --- Hospitalizations + ICU Combined -----
-        adddata(
-            "Number of patients in Hospital + ICU: "
-            + str(NoneCheck(coviddataset["People in Hospital + ICU"][0]))
-            + str(ratechange("People in Hospital + ICU")),
-            "bullet",
-            "posttweet",
-        )
-        totalaveragesadd(
-            "People in Hospital + ICU", "7 Day Number in Hospital + ICU Average: "
-        )
-        gaugeit(
-            total_sevavcalc_change("People in Hospital + ICU"),
-            "People in Hospital + ICU",
-        )
+        adddata ('Number of patients in hospital: '+
+        			str(NoneCheck(coviddataset['Number of patients hospitalized with COVID-19'][0]))+
+        			str(ratechange('Number of patients hospitalized with COVID-19')),
+        			'bullet',
+        			'posttweet')
+        totalaveragesadd ('Number of patients hospitalized with COVID-19','7 Day Number in Hospital Average: ')
+        #----------- ICU Data -----------
+        adddata ('Number of patients in ICU: '+
+			str(NoneCheck(coviddataset['Number of patients in ICU due to COVID-19'][0]))+
+			str(ratechange('Number of patients in ICU due to COVID-19')),
+			'bullet',
+			'posttweet')
+        totalaveragesadd ('Number of patients in ICU due to COVID-19','7 Day Number in ICU Average: ')
 
         # ----------- Vaccine Data -----------
         adddata("💉 Vaccination Data", "heading")
@@ -609,7 +461,6 @@ if checkfile("dates.txt", formattedToday) == False:
             arrow = "⬇️"
         else:
             arrow = "⬆️"
-        gaugeit(vaccinerate, "Maxxinated")
         adddata(
             "% of People With at Least One Dose: "
             + str(format(vaccinepercent, ".1%"))
@@ -636,7 +487,6 @@ if checkfile("dates.txt", formattedToday) == False:
             arrow = "⬇️"
         else:
             arrow = "⬆️"
-        gaugeit(vaccinerate, "Maxxinated")
         adddata(
             "% of People Maxxinated: "
             + str(format(vaccinepercent, ".1%"))
@@ -655,7 +505,6 @@ if checkfile("dates.txt", formattedToday) == False:
             int(coviddataset["total_individuals_3doses"][0])
             / int(coviddataset["total_individuals_3doses"][1])
         ) - 1
-        gaugeit(vaccinerate, "3 Shotters")
         if vaccinerate == 0:
             arrow = "↕️"
         elif vaccinerate < 0:
@@ -697,31 +546,35 @@ if checkfile("dates.txt", formattedToday) == False:
             + ")",
             "bullet",
         )
-        gaugeit(sevaveragegauger("total_doses_administered"), "7 Day Dose Average")
 
-        # Finalize the emoji (gauge)
-        adddata("Overall, how are things going right now?", "heading")
-        if gauge > 6:
-            gauge = 6
-            logit("Gauge is now " + str(gauge) + "(Gauge was too high)")
-        if gauge < 0:
-            gauge = 0
-            logit("Gauge is now " + str(gauge) + "(Gauge was too Low)")
-
-        factors = ""
-        if gaugefactor == "":
-            factors = "None."
+        ##----------- Case Data -----------
+        adddata("🦠 Case Data", "heading")
+        newcasestoday = coviddataset["Total Cases"][0] - coviddataset["Total Cases"][1]
+        newcasesyesterday = (
+            coviddataset["Total Cases"][1] - coviddataset["Total Cases"][2]
+        )
+        newcaseratechange = (newcasestoday / newcasesyesterday) - 1
+        if newcaseratechange == 0:
+            arrow = "↕️"
+        elif newcaseratechange < 0:
+            arrow = "⬇️"
         else:
-            for i in gaugefactor:
-                factors += i
-            factors = factors[0 : len(factors) - 2]
+            arrow = "⬆️"
+        adddata(
+            "New Cases: "
+            + f'{newcasestoday:,.0f}'
+            + " ("
+            + arrow
+            + " "
+            + str(format(abs(newcaseratechange), ".1%"))
+            + ")",
+            "bullet",
+            "posttweet",
+        )
+        ### Calculate and display 7 day average
+        averagechange_and_add("Total Cases", "New Case 7 Day Average: ")
 
-        adddata(howrthings[str(gauge)], "heading")
-        if factors == "":
-            factors = "None"
-        adddata("(Emoji Factors: " + factors + ".)", "p")
-        esubject = esubject + ": " + howrthings[str(gauge)]
-        emoji = howrthings[str(gauge)]
+		# Add charts to email body
         emailbody = (
             emailbody
             + '<h2>📈Charts</h2><h3><a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQgPFb9qYvFkx2QxDN5ympVrqdMvPAsmVsDdhqwMD2ZTTVI9dNNRO06Kxal2j3ruBLDUj5gg_oW2lw3/pubchart?oid=121353037&format=interactive">Cases, Hospitalizations, Vaccines</a></h3><img src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQgPFb9qYvFkx2QxDN5ympVrqdMvPAsmVsDdhqwMD2ZTTVI9dNNRO06Kxal2j3ruBLDUj5gg_oW2lw3/pubchart?oid=121353037&format=image" alt="Historical Chart"><h3>Vaccine 7-Day Average Dose Rate</h3><img src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQgPFb9qYvFkx2QxDN5ympVrqdMvPAsmVsDdhqwMD2ZTTVI9dNNRO06Kxal2j3ruBLDUj5gg_oW2lw3/pubchart?oid=1049777004&amp;format=image" alt="Vaccine 7 day average history"></p>'
