@@ -226,11 +226,110 @@ def getcoviddata(dataset, getdays, fetchdate):
             quay = quay - 1
 
 
+
+# Sets the parameters to determine the emoji to use based on how many arrows are pointing up.
+howrthings = {"0": "🥳", "1": "😎", "2": "🙂", "3": "😐", "4": "😕", "5": "😨", "6": "😱"}
+gauge = 3
+logit("Starting gauge at " + str(gauge))
+gaugefactor = []
+
+# This variable keeps track of the factors and thresholds impacting the gauge
+gaugethings = {
+    "New Cases": {"threshold": 0.1, "name": "New Cases", "good": "down"},
+    "7 Day New Case Average": {
+        "threshold": 0.02,
+        "name": "7 Day New Case Count",
+        "good": "down",
+    },
+    "Number of patients hospitalized with COVID-19": {
+        "threshold": 0.1,
+        "name": "Hospitalization Change",
+        "good": "down",
+    },
+    "Number of patients in ICU due to COVID-19": {
+        "threshold": 0.1,
+        "name": "ICU Change",
+        "good": "down",
+    },
+    "7 Day Hospital Change Average": {
+        "threshold": 0.05,
+        "name": "7 Day Hospital Change Average",
+        "good": "down",
+    },
+    "7 Day ICU Change Average": {
+        "threshold": 0.05,
+        "name": "7 Day ICU Change Average",
+        "good": "down",
+    },
+    "Maxxinated": {"threshold": 0.01, "name": "Percent Maxxinated", "good": "up"},
+    "3 Shotters": {"threshold": 0.01, "name": "Percent 3 Shotters", "good": "up"},
+    "7 Day Dose Average": {
+        "threshold": 0.02,
+        "name": "7 Day Dose Average",
+        "good": "up",
+    },
+    "7 Day Hopsital Average": {
+        "threshold": 0.05,
+        "name": "7 Day Hopsital Average",
+        "good": "down",
+    },
+    "7 Day ICU Average": {
+        "threshold": 0.05,
+        "name": "7 Day ICU Average",
+        "good": "down",
+    },
+    "People in Hospital + ICU": {
+        "threshold": 0.05,
+        "name": "7 Day ICU Average",
+        "good": "down",
+    },
+}
+
+
+# This function adjusts the gauge based on the factor and change fed into it
+def gaugeit(change, factor):
+    try:
+        logit("Gauge checking " + factor + " with a rate of " + str(round(change, 2)))
+        threshold = gaugethings[factor]["threshold"]
+        gaugeup = gaugethings[factor]["name"] + " " + "up"
+        direction = "down"
+        if gaugethings[factor]["good"] == "up":
+            change *= -1
+            logit("Up is good so " + factor + " is now " + str(round(change, 2)))
+        gaugedown = gaugethings[factor]["name"] + " " + gaugethings[factor]["good"]
+        global gauge
+        if change < -threshold:
+            if gaugethings[factor]["good"] == "up":
+                direction = "up"
+            else:
+                direction = "down"
+            logit(factor + " matched below threshold")
+            gauge -= 1
+            logit(
+                "Gauge is now " + str(gauge) + " - " + factor + " " + direction + ".\n"
+            )
+            gaugefactor.append(factor + " " + direction + ", ")
+        elif change > threshold:
+            logit(factor + " matched above threshold")
+            if gaugethings[factor]["good"] == "up":
+                direction = "down"
+            else:
+                direction = "up"
+            gauge += 1
+            logit(
+                "Gauge is now " + str(gauge) + " - " + factor + " " + direction + ".\n"
+            )
+            gaugefactor.append(factor + " " + direction + ", ")
+        else:
+            logit(factor + " did not affect gauge.\n")
+    except TypeError:
+        logit("Null value for ", change)
+
 daysget = 9  # sets how many days of data to get (starting from today)
 
 # Check for and update the gsheet for yesterday's data if not there
 if platform == "linux":
-    if checkfile("dates.txt", fyesterday) == False:
+    if checkfile("dates.txt", fyesterday) is False:
         getcoviddata("Vaccinedata", daysget, yesterday)
         getcoviddata("Casedata", daysget, yesterday)
         if resultstotal == daysget * 2:
@@ -242,7 +341,8 @@ if platform == "linux":
 # Run the function to get coviddata for vaccines and cases.
 
 ## First we check the dates file to see if the script was already run and email sent so we don't send multiple emails.
-if checkfile("dates.txt", formattedToday) == False:
+
+if checkfile("dates.txt", formattedToday) is False:
     getcoviddata("Vaccinedata", daysget, getdate)
     getcoviddata("Casedata", daysget, getdate)
 else:
@@ -370,6 +470,7 @@ def averagechange_and_add(datum, display):
         arrow = "⬆️"
     else:
         arrow = "⬇️"
+
     number = sevavcalc("today", coviddataset[datum])
     adddata(
         display
@@ -401,7 +502,11 @@ def totalaveragesadd(datum, display):
 
 
 def NoneCheck(datum):
-    if datum == None:
+
+
+
+    if datum is None:
+
         return "N\A"
     else:
         return datum
@@ -421,8 +526,8 @@ def ratechange(datum):
     except TypeError:
         return "N/A"
 
-
 # This part of the script takes the data, does some calculations, and returns the results.
+
 if checkfile("dates.txt", formattedToday) == False:
     if resultstotal == daysget * 2:
         # ----------- Format data, print it, log it to gsheet and send email -----------
@@ -451,6 +556,7 @@ if checkfile("dates.txt", formattedToday) == False:
                 NoneCheck(coviddataset["Number of patients in ICU due to COVID-19"][0])
             )
             + str(ratechange("Number of patients in ICU due to COVID-19")),
+
             "bullet",
             "posttweet",
         )
@@ -561,7 +667,6 @@ if checkfile("dates.txt", formattedToday) == False:
             + ")",
             "bullet",
         )
-
         ##----------- Case Data -----------
         adddata("🦠 Case Data", "heading")
         newcasestoday = coviddataset["Total Cases"][0] - coviddataset["Total Cases"][1]
@@ -598,7 +703,7 @@ if checkfile("dates.txt", formattedToday) == False:
         # Send results to the gsheet and send email unless already done
 
         if platform == "linux":
-            if checkfile("dates.txt", formattedToday) == False:
+            if checkfile("dates.txt", formattedToday) is False:
                 # Update gsheet
                 gsheetupdate(getdate)
                 logit("Today's gsheet updated")
