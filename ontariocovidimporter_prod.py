@@ -225,6 +225,7 @@ def getcoviddata(dataset, getdays, fetchdate):
                 coviddataset[recname].append(recnum)
             quay = quay - 1
 
+
 daysget = 9  # sets how many days of data to get (starting from today)
 
 # Check for and update the gsheet for yesterday's data if not there
@@ -372,7 +373,7 @@ def averagechange_and_add(datum, display):
     number = sevavcalc("today", coviddataset[datum])
     adddata(
         display
-        + f'{number:,.0f}'
+        + f"{number:,.0f}"
         + " ("
         + arrow
         + " "
@@ -426,22 +427,36 @@ if checkfile("dates.txt", formattedToday) == False:
     if resultstotal == daysget * 2:
         # ----------- Format data, print it, log it to gsheet and send email -----------
 
-
         # ----------- Hospitalization Data -----------
         adddata("🏥 Hospitalizations + ICU", "heading")
-        adddata ('Number of patients in hospital: '+
-        			str(NoneCheck(coviddataset['Number of patients hospitalized with COVID-19'][0]))+
-        			str(ratechange('Number of patients hospitalized with COVID-19')),
-        			'bullet',
-        			'posttweet')
-        totalaveragesadd ('Number of patients hospitalized with COVID-19','7 Day Number in Hospital Average: ')
-        #----------- ICU Data -----------
-        adddata ('Number of patients in ICU: '+
-			str(NoneCheck(coviddataset['Number of patients in ICU due to COVID-19'][0]))+
-			str(ratechange('Number of patients in ICU due to COVID-19')),
-			'bullet',
-			'posttweet')
-        totalaveragesadd ('Number of patients in ICU due to COVID-19','7 Day Number in ICU Average: ')
+        adddata(
+            "Number of patients in hospital: "
+            + str(
+                NoneCheck(
+                    coviddataset["Number of patients hospitalized with COVID-19"][0]
+                )
+            )
+            + str(ratechange("Number of patients hospitalized with COVID-19")),
+            "bullet",
+            "posttweet",
+        )
+        totalaveragesadd(
+            "Number of patients hospitalized with COVID-19",
+            "7 Day Number in Hospital Average: ",
+        )
+        # ----------- ICU Data -----------
+        adddata(
+            "Number of patients in ICU: "
+            + str(
+                NoneCheck(coviddataset["Number of patients in ICU due to COVID-19"][0])
+            )
+            + str(ratechange("Number of patients in ICU due to COVID-19")),
+            "bullet",
+            "posttweet",
+        )
+        totalaveragesadd(
+            "Number of patients in ICU due to COVID-19", "7 Day Number in ICU Average: "
+        )
 
         # ----------- Vaccine Data -----------
         adddata("💉 Vaccination Data", "heading")
@@ -562,7 +577,7 @@ if checkfile("dates.txt", formattedToday) == False:
             arrow = "⬆️"
         adddata(
             "New Cases: "
-            + f'{newcasestoday:,.0f}'
+            + f"{newcasestoday:,.0f}"
             + " ("
             + arrow
             + " "
@@ -574,7 +589,7 @@ if checkfile("dates.txt", formattedToday) == False:
         ### Calculate and display 7 day average
         averagechange_and_add("Total Cases", "New Case 7 Day Average: ")
 
-		# Add charts to email body
+        # Add charts to email body
         emailbody = (
             emailbody
             + '<h2>📈Charts</h2><h3><a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQgPFb9qYvFkx2QxDN5ympVrqdMvPAsmVsDdhqwMD2ZTTVI9dNNRO06Kxal2j3ruBLDUj5gg_oW2lw3/pubchart?oid=121353037&format=interactive">Cases, Hospitalizations, Vaccines</a></h3><img src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQgPFb9qYvFkx2QxDN5ympVrqdMvPAsmVsDdhqwMD2ZTTVI9dNNRO06Kxal2j3ruBLDUj5gg_oW2lw3/pubchart?oid=121353037&format=image" alt="Historical Chart"><h3>Vaccine 7-Day Average Dose Rate</h3><img src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQgPFb9qYvFkx2QxDN5ympVrqdMvPAsmVsDdhqwMD2ZTTVI9dNNRO06Kxal2j3ruBLDUj5gg_oW2lw3/pubchart?oid=1049777004&amp;format=image" alt="Vaccine 7 day average history"></p>'
