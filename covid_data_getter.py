@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 # Sets the name of the CSV file we'll be using to store data
 file = "ontario_covid_data.csv"
 
-# Gets today's date 
+# Gets today's date
 today = date.today()
 
 # Determines how many days back to check for data in the CSV file
