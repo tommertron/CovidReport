@@ -130,7 +130,7 @@ class CovidRecords(OntarioGov):
                 writer.writerow(self.map[d])
 
     def backfill(self, n=10):
-        [records.get(date) for date in DateRanges.range(n)]
+        [self.get(date) for date in DateRanges.range(n)]
 
 
 if __name__ == "__main__":
