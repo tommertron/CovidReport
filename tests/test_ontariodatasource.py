@@ -25,7 +25,7 @@ class TestOntarioDataSource(unittest.TestCase):
         ) as mock_method:
             og = ontgov.OntarioGov()
             results = og.vaccinedata(datetime.date.today())
-
+        print(results)
         mock_method.assert_called_with(
             datetime.date(2022, 1, 12),
             "VaccineData",

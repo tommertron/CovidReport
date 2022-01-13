@@ -65,7 +65,9 @@ class OntarioGov(CovidData):
         queryurl = urlstart + resourceid + "&" + fieldQuery + "&" + reqdate
         queryurl = queryurl.replace(" ", "%20")
         fileobj = ur.urlopen(queryurl)
-        og_results = json.loads(fileobj.read())
+        return json.loads(fileobj.read())
+
+    def _cleanup(self, og_results):
         if not og_results["success"]:
             raise Exception("Failed to pull data from OntarioGov")
         results = og_results["result"]["records"][0]
@@ -73,13 +75,15 @@ class OntarioGov(CovidData):
         return results
 
     def vaccinedata(self, date: datetime):
-        return self.query(
-            date, "VaccineData", OntarioGov.DATASOURCES["VaccineData"]["fields"]
+        return self._cleanup(
+            self.query(
+                date, "VaccineData", OntarioGov.DATASOURCES["VaccineData"]["fields"]
+            )
         )
 
     def casedata(self, date: datetime):
-        return self.query(
-            date, "CaseData", OntarioGov.DATASOURCES["CaseData"]["fields"]
+        return self._cleanup(
+            self.query(date, "CaseData", OntarioGov.DATASOURCES["CaseData"]["fields"])
         )
 
     def get(self, date: datetime):
