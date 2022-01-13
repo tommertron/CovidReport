@@ -48,14 +48,12 @@ class TestDateRanges(unittest.TestCase):
         self.assertEqual(len(dates), 10)
         self.assertTrue(datetime.date(2022, 1, 12) in dates)
         self.assertTrue(datetime.date(2022, 1, 3) in dates)
-        self.assertFalse(datetime.date(2022, 1, 2) in dates)
 
     def test_daterange_five(self):
         dates = ontgov.DateRanges.range(5)
         self.assertEqual(len(dates), 5)
         self.assertTrue(datetime.date(2022, 1, 12) in dates)
         self.assertTrue(datetime.date(2022, 1, 8) in dates)
-        self.assertFalse(datetime.date(2022, 1, 7) in dates)
 
 
 if __name__ == "__main__":
