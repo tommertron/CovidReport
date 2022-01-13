@@ -19,12 +19,7 @@ class DateRanges:
         return date.today() - timedelta(days=days)
 
 
-class CovidData:
-    def missing(self, date: datetime) -> bool:
-        return True
-
-
-class OntarioGov(CovidData):
+class OntarioGov:
     DATASOURCES = {
         "CaseData": {
             "id": "ed270bb8-340b-41f9-a7c6-e8ef587e6d11",
