@@ -10,6 +10,7 @@ import urllib.request as ur
 import urllib.parse as prs
 from datetime import datetime, timedelta
 
+# push test
 ###---Global Variables----
 # Sets the name of the CSV file we'll be using to store data
 file = "ontario_covid_data.csv"
